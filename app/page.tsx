@@ -11,6 +11,12 @@ import {
   CheckCircle,
   Radio,
   Send,
+  Coins,
+  Image,
+  Ban,
+  Search,
+  Box,
+  Activity,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -57,8 +63,8 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-            Front-run drainer bots by pre-building rescue transactions and broadcasting them the
-            instant ETH arrives. Your keys never leave your browser.
+            The complete wallet rescue suite. Sweep ETH, rescue tokens &amp; NFTs, revoke approvals,
+            detect drainer bots, and execute atomic Flashbots bundles — all client-side.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -93,20 +99,20 @@ export default function LandingPage() {
               {
                 step: 1,
                 icon: Shield,
-                title: "Connect Wallet",
-                desc: "Enter your RPC endpoint and the compromised wallet's private key. Everything stays in your browser.",
+                title: "Connect & Scan",
+                desc: "Enter your RPC endpoint and compromised wallet key. The tool automatically scans for tokens, NFTs, active approvals, and detects drainer bot activity.",
               },
               {
                 step: 2,
                 icon: Radio,
-                title: "Configure & Monitor",
-                desc: "Choose your rescue action (ETH sweep, ENS transfer, or record update). The tool watches for incoming ETH deposits.",
+                title: "Configure Rescue",
+                desc: "Choose your rescue action — ETH sweep, token rescue, NFT transfer, approval revocation, or ENS recovery. Optionally enable Flashbots atomic bundles.",
               },
               {
                 step: 3,
                 icon: Zap,
                 title: "Auto-Execute",
-                desc: "The instant ETH arrives, your pre-built rescue transaction broadcasts with maximum gas priority, beating the drainer.",
+                desc: "The instant ETH arrives, your pre-built rescue transaction broadcasts with maximum gas priority. Or use atomic bundles where fund + rescue execute together.",
               },
             ].map((item) => {
               const Icon = item.icon;
@@ -129,40 +135,62 @@ export default function LandingPage() {
       <section id="features" className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
-            Rescue Operations
+            Full Wallet Rescue Suite
           </h2>
           <p className="text-gray-400 text-center mb-14 max-w-xl mx-auto">
-            Three types of rescue transactions to save your assets
+            Eight rescue capabilities to recover every asset type
           </p>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               {
                 icon: Send,
                 title: "ETH Rescue",
-                desc: "Sweep remaining ETH to a safe wallet. Automatically calculates the maximum amount after gas costs.",
-                color: "emerald",
+                desc: "Sweep remaining ETH to a safe wallet with automatic gas calculation.",
+              },
+              {
+                icon: Coins,
+                title: "Token Rescue",
+                desc: "Rescue ERC-20 tokens like USDC, WETH, DAI, and more from compromised wallets.",
+              },
+              {
+                icon: Image,
+                title: "NFT Rescue",
+                desc: "Transfer ERC-721 NFTs to safety before the drainer can claim them.",
+              },
+              {
+                icon: Ban,
+                title: "Approval Revoke",
+                desc: "Revoke malicious token approvals that let attackers drain without your key.",
+              },
+              {
+                icon: Box,
+                title: "Atomic Bundles",
+                desc: "Fund + rescue in one atomic block via Flashbots. Drainer literally cannot front-run.",
+              },
+              {
+                icon: Search,
+                title: "Wallet Scanner",
+                desc: "Auto-scan for all assets, tokens, NFTs, and active approvals before configuring rescue.",
+              },
+              {
+                icon: Activity,
+                title: "Bot Detection",
+                desc: "Analyze transaction patterns to detect drainer bots and estimate their gas strategy.",
               },
               {
                 icon: FileText,
-                title: "ENS Transfer",
-                desc: "Transfer ENS name ownership via NameWrapper before the drainer can claim it. Protects your digital identity.",
-                color: "violet",
-              },
-              {
-                icon: Edit3,
-                title: "ENS Record Update",
-                desc: "Update text records like delegate addresses, descriptions, or URLs on your ENS name.",
-                color: "cyan",
+                title: "ENS Recovery",
+                desc: "Transfer ENS name ownership or update records before the drainer acts.",
               },
             ].map((item) => {
               const Icon = item.icon;
               return (
-                <div key={item.title} className="bg-white/5 border border-white/10 rounded-2xl p-8 hover:border-violet-500/50 transition">
-                  <div className={`w-12 h-12 bg-${item.color}-500/20 rounded-xl flex items-center justify-center mb-5`}>
-                    <Icon className={`w-6 h-6 text-${item.color}-400`} />
+                <div key={item.title} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:border-violet-500/50 transition">
+                  <div className="w-10 h-10 bg-violet-500/20 rounded-xl flex items-center justify-center mb-4">
+                    <Icon className="w-5 h-5 text-violet-400" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white mb-3">{item.title}</h3>
+                  <h3 className="text-lg font-semibold text-white mb-2">{item.title}</h3>
                   <p className="text-gray-400 text-sm leading-relaxed">{item.desc}</p>
                 </div>
               );
@@ -184,9 +212,11 @@ export default function LandingPage() {
                 "Private keys are processed entirely in your browser",
                 "No data is ever sent to any server",
                 "No accounts, no sign-up, no tracking",
-                "Optional Flashbots Protect for private TX submission",
+                "Flashbots Protect & atomic bundles for private TX submission",
                 "Open source — inspect every line of code",
                 "EIP-1559 transactions with aggressive priority fees",
+                "Automatic drainer bot detection before rescue",
+                "Wallet scan reveals all assets & dangerous approvals",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-3">
                   <CheckCircle className="w-5 h-5 text-green-400 mt-0.5 shrink-0" />
@@ -219,7 +249,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-6 h-1.5 rounded bg-gradient-to-r from-violet-500 via-cyan-500 to-red-500" />
-            <span className="text-gray-500 text-sm">LUXBIN Drainer Defense</span>
+            <span className="text-gray-500 text-sm">LUXBIN Drainer Defense v2</span>
           </div>
           <p className="text-gray-600 text-sm">Part of the LUXBIN Quantum Wallet Security suite</p>
         </div>
