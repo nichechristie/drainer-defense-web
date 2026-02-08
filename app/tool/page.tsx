@@ -24,6 +24,10 @@ import {
   Search,
   Box,
   Activity,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Info,
 } from "lucide-react";
 import { JsonRpcProvider, Wallet, formatEther, parseUnits, isAddress } from "ethers";
 import {
@@ -49,6 +53,130 @@ import type {
   DrainerAnalysis,
   BundleResult,
 } from "@/types/rescue";
+
+/* ------------------------------------------------------------------ */
+/*  Instructions Guide                                                 */
+/* ------------------------------------------------------------------ */
+
+function InstructionsGuide() {
+  const [open, setOpen] = useState(true);
+
+  return (
+    <div className="mb-8 bg-gradient-to-br from-violet-500/10 to-cyan-500/10 border border-violet-500/20 rounded-2xl overflow-hidden">
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full px-6 py-4 flex items-center justify-between text-left"
+      >
+        <div className="flex items-center gap-3">
+          <HelpCircle className="w-5 h-5 text-violet-400" />
+          <span className="text-white font-semibold">How to Use This Tool</span>
+        </div>
+        {open ? (
+          <ChevronUp className="w-5 h-5 text-gray-400" />
+        ) : (
+          <ChevronDown className="w-5 h-5 text-gray-400" />
+        )}
+      </button>
+
+      {open && (
+        <div className="px-6 pb-6 space-y-5">
+          {/* What this tool does */}
+          <div className="bg-white/5 rounded-xl p-4">
+            <p className="text-violet-400 text-sm font-medium mb-2">What does this tool do?</p>
+            <p className="text-gray-400 text-sm leading-relaxed">
+              When a wallet is compromised, drainer bots watch it and steal any ETH you send to it.
+              This tool pre-builds a rescue transaction and broadcasts it <strong className="text-white">the instant</strong> ETH
+              arrives — faster than the drainer bot can react. It can also rescue tokens, NFTs, and revoke dangerous approvals.
+            </p>
+          </div>
+
+          {/* Step by step */}
+          <div className="space-y-3">
+            <p className="text-white text-sm font-medium">Step-by-step:</p>
+
+            <div className="flex gap-3">
+              <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-violet-400 text-xs font-bold">1</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Connect your compromised wallet</p>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  Pick a free RPC (click one of the buttons) or paste your own Alchemy/Infura URL.
+                  Then paste the <strong className="text-gray-300">private key of the compromised wallet</strong> (the one being drained).
+                  The tool will scan it for assets and check for drainer bot activity.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-violet-400 text-xs font-bold">2</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Choose what to rescue</p>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  Pick an action: <strong className="text-gray-300">ETH Rescue</strong> (sweep remaining ETH),{" "}
+                  <strong className="text-gray-300">Token Rescue</strong> (save USDC, WETH, etc.),{" "}
+                  <strong className="text-gray-300">NFT Rescue</strong>,{" "}
+                  <strong className="text-gray-300">Revoke Approval</strong> (stop drainers from using your allowances), or{" "}
+                  <strong className="text-gray-300">ENS Transfer/Record</strong>.
+                  Enter the <strong className="text-gray-300">safe wallet address</strong> where rescued assets should go.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <div className="w-6 h-6 rounded-full bg-violet-500/20 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-violet-400 text-xs font-bold">3</span>
+              </div>
+              <div>
+                <p className="text-white text-sm font-medium">Arm &amp; execute</p>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  Click <strong className="text-gray-300">ARM RESCUE BOT</strong>. The tool watches the compromised wallet.
+                  When ETH arrives (you send gas from another wallet), it instantly broadcasts the rescue transaction.
+                  For testing, enable <strong className="text-gray-300">Dry Run</strong> — it simulates everything without touching the blockchain.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Key concepts */}
+          <div className="grid sm:grid-cols-2 gap-3">
+            <div className="bg-white/5 rounded-xl p-3">
+              <p className="text-cyan-400 text-xs font-medium mb-1">Dry Run Mode</p>
+              <p className="text-gray-500 text-xs">Test everything safely. No real transactions are sent. Turn this on first!</p>
+            </div>
+            <div className="bg-white/5 rounded-xl p-3">
+              <p className="text-violet-400 text-xs font-medium mb-1">Flashbots Protect</p>
+              <p className="text-gray-500 text-xs">Sends your TX through a private channel so drainer bots can't see it in the mempool.</p>
+            </div>
+            <div className="bg-white/5 rounded-xl p-3">
+              <p className="text-orange-400 text-xs font-medium mb-1">Atomic Bundle</p>
+              <p className="text-gray-500 text-xs">Bundles "send gas" + "rescue" into one block. The drainer literally cannot front-run this. Requires a second (safe) wallet key.</p>
+            </div>
+            <div className="bg-white/5 rounded-xl p-3">
+              <p className="text-red-400 text-xs font-medium mb-1">Gas Priority</p>
+              <p className="text-gray-500 text-xs">Higher gas = your TX gets mined first. Use "Aggressive" if the bot detection shows HIGH risk.</p>
+            </div>
+          </div>
+
+          {/* Quick start */}
+          <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
+            <p className="text-emerald-400 text-sm font-medium mb-2">Quick Start (Test Mode)</p>
+            <ol className="text-gray-400 text-xs space-y-1 list-decimal list-inside">
+              <li>Click a <strong className="text-gray-200">free RPC button</strong> below (e.g. Cloudflare)</li>
+              <li>Paste the <strong className="text-gray-200">compromised wallet's private key</strong></li>
+              <li>Click <strong className="text-gray-200">Connect &amp; Scan</strong></li>
+              <li>Select <strong className="text-gray-200">ETH Rescue</strong> and enter your safe address</li>
+              <li>Turn on <strong className="text-gray-200">Dry Run</strong></li>
+              <li>Click <strong className="text-gray-200">ARM RESCUE BOT</strong> — watch it simulate the rescue</li>
+            </ol>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /* ------------------------------------------------------------------ */
 /*  Step Indicator                                                     */
@@ -670,6 +798,9 @@ function StepConfigure({
             placeholder="0x..."
             className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-violet-500 transition font-mono text-sm"
           />
+          <p className="text-xs text-gray-600 mt-1 flex items-center gap-1">
+            <Info className="w-3 h-3" /> This is your SAFE wallet — where rescued assets will be sent (not the compromised one)
+          </p>
         </div>
       )}
 
@@ -960,6 +1091,15 @@ function StepConfigure({
             <span className="text-sm text-gray-300">Dry Run</span>
           </label>
         </div>
+
+        {!dryRun && !useBundleMode && !useFlashbots && (
+          <div className="flex items-start gap-2 bg-yellow-500/10 border border-yellow-500/20 rounded-lg px-3 py-2">
+            <AlertTriangle className="w-4 h-4 text-yellow-400 mt-0.5 shrink-0" />
+            <p className="text-yellow-400/80 text-xs">
+              <strong>First time?</strong> Enable Dry Run to test without sending real transactions. You can also enable Flashbots Protect to hide your TX from bots.
+            </p>
+          </div>
+        )}
 
         {/* Bundle mode info */}
         {useBundleMode && (
@@ -1371,9 +1511,30 @@ export default function ToolPage() {
       </nav>
 
       <main className="max-w-2xl mx-auto px-6 py-12">
+        <InstructionsGuide />
         <StepIndicator step={step} />
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8">
+          {/* Step headers */}
+          {step === 1 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-white mb-1">Step 1: Connect Compromised Wallet</h2>
+              <p className="text-gray-500 text-sm">Pick an RPC, paste the private key of the wallet being drained, then click connect.</p>
+            </div>
+          )}
+          {step === 2 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-white mb-1">Step 2: Configure Your Rescue</h2>
+              <p className="text-gray-500 text-sm">Choose what to rescue, where to send it, and how aggressive the gas should be.</p>
+            </div>
+          )}
+          {step === 3 && (
+            <div className="mb-6">
+              <h2 className="text-xl font-bold text-white mb-1">Step 3: Arm &amp; Execute</h2>
+              <p className="text-gray-500 text-sm">Review your plan, then click the button to start. The tool will watch for ETH and instantly rescue.</p>
+            </div>
+          )}
+
           {step === 1 && (
             <StepConnect
               onConnected={(d, scan, analysis) => {
