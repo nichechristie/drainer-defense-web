@@ -139,12 +139,17 @@ function StepConnect({
       let drainerResult: DrainerAnalysis | null = null;
 
       try {
-        const [scan, drainer] = await Promise.all([
+        const scanPromise = Promise.all([
           scanWallet(provider, wallet.address, (msg) => setStatusMsg(msg)),
           detectDrainer(provider, wallet.address, (msg) => setStatusMsg(msg)),
         ]);
-        scanResult = scan;
-        drainerResult = drainer;
+        // Global 15-second timeout so the UI never gets stuck
+        const timeout = new Promise<null>((resolve) => setTimeout(() => resolve(null), 15000));
+        const result = await Promise.race([scanPromise, timeout]);
+        if (result) {
+          scanResult = result[0];
+          drainerResult = result[1];
+        }
       } catch {
         // Scanner/detector failures are non-fatal
       }

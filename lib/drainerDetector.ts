@@ -12,6 +12,13 @@ interface TxInfo {
   gasPrice: bigint;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((resolve) => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 export async function detectDrainer(
   provider: JsonRpcProvider,
   address: string,
@@ -20,63 +27,69 @@ export async function detectDrainer(
   const log = onLog || (() => {});
   const addressLower = address.toLowerCase();
 
+  const defaultResult: DrainerAnalysis = {
+    riskLevel: "low",
+    botDetected: false,
+    sweepCount: 0,
+    avgSweepTimeSeconds: null,
+    botDestination: null,
+    estimatedBotGasGwei: null,
+    recommendation: "Not enough transaction history to analyze. Proceed with standard gas settings.",
+  };
+
   log("Analyzing recent transaction patterns...");
 
-  // Get recent transactions by scanning recent blocks for TXs involving this address
   const currentBlock = await provider.getBlockNumber();
   const txs: TxInfo[] = [];
 
-  // Scan last ~100 blocks to find transactions
-  const scanRange = 100;
+  // Scan last 10 blocks in parallel (not 100 sequentially)
+  const scanRange = 10;
   const startBlock = Math.max(0, currentBlock - scanRange);
 
   log(`Scanning blocks ${startBlock} to ${currentBlock}...`);
 
-  for (let blockNum = currentBlock; blockNum >= startBlock && txs.length < DRAINER_TX_SCAN_COUNT; blockNum--) {
-    try {
-      const block = await provider.getBlock(blockNum, true);
-      if (!block || !block.prefetchedTransactions) continue;
+  const blockPromises = [];
+  for (let blockNum = currentBlock; blockNum >= startBlock; blockNum--) {
+    blockPromises.push(
+      withTimeout(
+        provider.getBlock(blockNum, true).catch(() => null),
+        3000,
+        null
+      )
+    );
+  }
 
-      for (const tx of block.prefetchedTransactions) {
-        if (
-          tx.from.toLowerCase() === addressLower ||
-          (tx.to && tx.to.toLowerCase() === addressLower)
-        ) {
-          txs.push({
-            hash: tx.hash,
-            from: tx.from,
-            to: tx.to,
-            value: tx.value,
-            blockNumber: block.number,
-            timestamp: block.timestamp,
-            gasPrice: tx.gasPrice || 0n,
-          });
-        }
+  const blocks = await Promise.all(blockPromises);
+
+  for (const block of blocks) {
+    if (!block || !block.prefetchedTransactions) continue;
+    for (const tx of block.prefetchedTransactions) {
+      if (
+        tx.from.toLowerCase() === addressLower ||
+        (tx.to && tx.to.toLowerCase() === addressLower)
+      ) {
+        txs.push({
+          hash: tx.hash,
+          from: tx.from,
+          to: tx.to,
+          value: tx.value,
+          blockNumber: block.number,
+          timestamp: block.timestamp,
+          gasPrice: tx.gasPrice || 0n,
+        });
       }
-    } catch {
-      // Skip blocks that fail to fetch
     }
+    if (txs.length >= DRAINER_TX_SCAN_COUNT) break;
   }
 
   log(`Found ${txs.length} recent transactions`);
 
-  if (txs.length < 2) {
-    return {
-      riskLevel: "low",
-      botDetected: false,
-      sweepCount: 0,
-      avgSweepTimeSeconds: null,
-      botDestination: null,
-      estimatedBotGasGwei: null,
-      recommendation: "Not enough transaction history to analyze. Proceed with standard gas settings.",
-    };
-  }
+  if (txs.length < 2) return defaultResult;
 
   // Sort by timestamp ascending
   txs.sort((a, b) => a.timestamp - b.timestamp);
 
   // Identify deposit-then-sweep patterns
-  // A "deposit" is incoming value, a "sweep" is outgoing value shortly after
   const sweeps: { depositTime: number; sweepTime: number; sweepTo: string; sweepGas: bigint }[] = [];
 
   for (let i = 0; i < txs.length - 1; i++) {
@@ -84,7 +97,6 @@ export async function detectDrainer(
     const isDeposit = tx.to?.toLowerCase() === addressLower && tx.value > 0n;
 
     if (isDeposit) {
-      // Look for a sweep following this deposit
       for (let j = i + 1; j < txs.length; j++) {
         const nextTx = txs[j];
         const isSweep = nextTx.from.toLowerCase() === addressLower && nextTx.value > 0n;
@@ -116,12 +128,10 @@ export async function detectDrainer(
     };
   }
 
-  // Analyze sweep timing
   const sweepTimes = sweeps.map((s) => s.sweepTime - s.depositTime);
   const avgSweepTime = sweepTimes.reduce((a, b) => a + b, 0) / sweepTimes.length;
   const fastSweeps = sweepTimes.filter((t) => t <= DRAINER_SWEEP_THRESHOLD_SECONDS);
 
-  // Check if sweeps go to same destination (bot wallet)
   const destinations = sweeps.map((s) => s.sweepTo.toLowerCase());
   const destCounts: Record<string, number> = {};
   for (const d of destinations) {
@@ -130,7 +140,6 @@ export async function detectDrainer(
   const topDest = Object.entries(destCounts).sort((a, b) => b[1] - a[1])[0];
   const sameDestRatio = topDest[1] / destinations.length;
 
-  // Estimate bot gas strategy
   const gasValues = sweeps.map((s) => s.sweepGas).filter((g) => g > 0n);
   let estimatedGasGwei: number | null = null;
   if (gasValues.length > 0) {
@@ -138,7 +147,6 @@ export async function detectDrainer(
     estimatedGasGwei = Number(formatUnits(maxGas, "gwei"));
   }
 
-  // Determine risk level
   const botDetected = fastSweeps.length >= 2 || (fastSweeps.length >= 1 && sameDestRatio > 0.5);
   let riskLevel: "low" | "medium" | "high";
   let recommendation: string;
