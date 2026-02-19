@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { AIShieldPanel } from "@/app/components/AIShieldPanel";
 import {
   Shield,
   Settings,
@@ -758,6 +759,9 @@ function StepConfigure({
     <div className="space-y-6">
       {/* Scan results */}
       <ScanResultsPanel scan={scan} analysis={analysis} />
+
+      {/* AI Shield Analysis */}
+      <AIShieldPanel address={walletAddress} analysis={analysis} scan={scan} />
 
       {/* Action selector */}
       <div>

@@ -17,6 +17,9 @@ import {
   Search,
   Box,
   Activity,
+  Brain,
+  Volume2,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -51,8 +54,8 @@ export default function LandingPage() {
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-8">
-            <Shield className="w-4 h-4 text-violet-400" />
-            <span className="text-violet-400 text-sm font-medium">LUXBIN Quantum Wallet Security</span>
+            <Sparkles className="w-4 h-4 text-violet-400" />
+            <span className="text-violet-400 text-sm font-medium">LUXBIN Shield — AI-Powered Wallet Security</span>
           </div>
 
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
@@ -63,8 +66,10 @@ export default function LandingPage() {
           </h1>
 
           <p className="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-            The complete wallet rescue suite. Sweep ETH, rescue tokens &amp; NFTs, revoke approvals,
-            detect drainer bots, and execute atomic Flashbots bundles — all client-side.
+            The complete AI-powered wallet rescue suite. Real-time threat intelligence from{" "}
+            <span className="text-violet-300">You.com</span>, voice alerts via{" "}
+            <span className="text-cyan-300">Deepgram</span>, Flashbots atomic bundles,
+            and full asset recovery — all 100% client-side.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -127,6 +132,62 @@ export default function LandingPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* AI Shield Features */}
+      <section id="ai-shield" className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="inline-flex items-center gap-2 bg-violet-500/10 border border-violet-500/20 rounded-full px-4 py-1.5 mb-6 mx-auto flex justify-center">
+            <Sparkles className="w-4 h-4 text-violet-400" />
+            <span className="text-violet-400 text-sm font-medium">New — AI Shield Intelligence</span>
+          </div>
+          <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-4">
+            AI-Powered Threat Intelligence
+          </h2>
+          <p className="text-gray-400 text-center mb-14 max-w-xl mx-auto">
+            Every wallet scan is now backed by real-time AI analysis and a voice briefing
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-gradient-to-br from-violet-500/10 to-cyan-500/10 border border-violet-500/20 rounded-2xl p-8">
+              <div className="w-12 h-12 bg-violet-500/20 rounded-xl flex items-center justify-center mb-5">
+                <Brain className="w-6 h-6 text-violet-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">You.com Threat Intel</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                After every wallet scan, AI with real-time web search analyzes your specific risk
+                profile and delivers tailored rescue recommendations — pulling from the latest
+                security research, known drainer destinations, and Flashbots documentation.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["Real-time web search", "Risk-matched advice", "Flashbots guidance", "Live sources"].map((tag) => (
+                  <span key={tag} className="text-xs bg-violet-500/10 border border-violet-500/20 text-violet-400 px-3 py-1 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-cyan-500/10 to-emerald-500/10 border border-cyan-500/20 rounded-2xl p-8">
+              <div className="w-12 h-12 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-5">
+                <Volume2 className="w-6 h-6 text-cyan-400" />
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-3">Deepgram Voice Alerts</h3>
+              <p className="text-gray-400 text-sm leading-relaxed mb-4">
+                When a threat is detected, Deepgram&apos;s AI voice (Aura) delivers an instant audio
+                briefing — threat level, sweep count, bot destination, and the exact steps
+                needed to rescue your assets. Falls back to browser speech if no API key.
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {["Deepgram Aura voice", "Risk-aware briefing", "Instant playback", "Browser fallback"].map((tag) => (
+                  <span key={tag} className="text-xs bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
